@@ -27,20 +27,38 @@ app.get('/process-data', function (request, response) {
 app.post('/process-data', urlEncodedParser, function(request, response){
     const fs = require('fs');
     const path = require('path');
+    
 
     let info =
             {
                   weight: request.body.weight,
                   height: request.body.height,
-                  BMI: request.body.BMI,
-                  Summary: request.body.diagnosis
+                  BMI: calculate(request.body.height,request.body.weight),
+                  Summary: diagnose(calculate(request.body.height,request.body.weight))
             };
             data.push(info);
             fs.writeFileSync(fileName, JSON.stringify(data, null, 2));
             response.render('results', info);
 
 });
+function calculate(height, weight){
+    var result =  weight/(height * height);
+    diagnose(result);
+   return result;
+}
 
+function diagnose(result){ 
+    if (result <= 18.5){
+         return "Under Weight";
+    }else if(result > 18.5 && result <=24.9){
+        return "Normal Weight";
+    }else if(result >24.9 && result <=29.9){
+        return "Over Weight";
+    }
+    else{
+        return "Obese";
+    }
+}
 
 app.listen(port);
 console.log(`server listening on port ${port}`);
